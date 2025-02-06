@@ -5,7 +5,6 @@ export default function Timer() {
     const saved = localStorage.getItem("timerState");
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Calculate elapsed time if timer was running
       if (parsed.isRunning) {
         const elapsed = Math.floor((Date.now() - parsed.lastUpdated) / 1000);
         return {
@@ -27,7 +26,6 @@ export default function Timer() {
 
   const intervalRef = useRef(null);
 
-  // Save state with timestamp
   useEffect(() => {
     const stateToSave = {
       ...state,
@@ -36,14 +34,17 @@ export default function Timer() {
     localStorage.setItem("timerState", JSON.stringify(stateToSave));
   }, [state]);
 
-  // Timer logic
   useEffect(() => {
     if (state.isRunning) {
       intervalRef.current = setInterval(() => {
         setState((prev) => {
           if (prev.timeLeft <= 0) {
             clearInterval(intervalRef.current);
-            return { ...prev, isRunning: false };
+            return {
+              ...prev,
+              isRunning: false,
+              timeLeft: prev.duration * 60, // Reset to original duration
+            };
           }
           return { ...prev, timeLeft: prev.timeLeft - 1 };
         });
@@ -53,11 +54,9 @@ export default function Timer() {
     return () => clearInterval(intervalRef.current);
   }, [state.isRunning]);
 
-  // Handle tab visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && state.isRunning) {
-        // Tab became visible, recalculate time
         const elapsed = Math.floor((Date.now() - state.lastUpdated) / 1000);
         setState((prev) => ({
           ...prev,
@@ -73,14 +72,12 @@ export default function Timer() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [state.isRunning, state.lastUpdated]);
 
-  // Format time display
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Calculate progress
   const progress =
     ((state.duration * 60 - state.timeLeft) / (state.duration * 60)) * 100;
 
@@ -99,7 +96,11 @@ export default function Timer() {
             }}
           />
         </svg>
-        <div className="time">{formatTime(state.timeLeft)}</div>
+        <div className={`time ${state.timeLeft === 0 ? "complete" : ""}`}>
+          {formatTime(
+            state.timeLeft === 0 ? state.duration * 60 : state.timeLeft
+          )}
+        </div>
       </div>
       <div className="controls">
         <button

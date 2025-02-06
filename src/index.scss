@@ -70,6 +70,12 @@ nav {
       transform: translate(-50%, -50%);
       font-size: 3rem;
       font-weight: bold;
+      transform-origin: center;
+
+      &.complete {
+        animation: pulse 1s infinite;
+        color: #4CAF50;
+      }
     }
   }
 
@@ -121,5 +127,17 @@ nav {
     border: 1px solid #444;
     color: white;
     border-radius: 4px;
+  }
+}
+
+@keyframes pulse {
+  0% { 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1); 
+  }
+  100% { 
+    transform: translate(-50%, -50%) scale(1); 
   }
 }
